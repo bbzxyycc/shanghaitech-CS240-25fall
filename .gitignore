@@ -1,0 +1,26 @@
+# macOS
+.DS_Store
+
+# 编译/临时文件
+*.o
+*.class
+*.exe
+*.out
+*.log
+*.aux
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.pdf
+*.zip
+*.tar.gz
+*.tgz
+*.swp
+
+# IDE/编辑器
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
