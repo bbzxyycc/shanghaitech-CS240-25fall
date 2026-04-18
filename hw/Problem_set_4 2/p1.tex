@@ -1,0 +1,182 @@
+\problem{}
+
+A food delivery platform assigns each order a unique positive integer ID
+from the set $\{1,2,\dots,n\}$, where a smaller ID corresponds to an earlier order.
+At any time, some orders may be canceled by customers or already delivered.
+
+The system maintains the set of orders using a boolean array $A[1..n]$,
+where
+\[
+A[i] =
+\begin{cases}
+\texttt{true},  & \text{if order $i$ is currently active}, \\
+\texttt{false}, & \text{if order $i$ has been canceled or delivered}.
+\end{cases}
+\]
+
+The platform supports the following operations:
+
+\begin{itemize}
+  \item \textsc{Init}$(n)$: initialize the system with $n$ active orders,
+        labeled $1$ through $n$.
+  \item \textsc{Cancel}$(i)$: cancel order $i$.
+  \item \textsc{DispatchNext}(): dispatch and remove the earliest active order,
+        i.e., the smallest index $i$ such that $A[i] = \texttt{true}$.
+        If no such order exists, return $0$.
+\end{itemize}
+
+The operations are implemented as follows.
+
+\begin{algorithm}[H]
+\caption{Initialization}
+\begin{algorithmic}[1]
+\Procedure{Init}{$n$}
+  \For{$i = 1$ \textbf{to} $n$}
+    \State $A[i] \gets \texttt{true}$
+  \EndFor
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Canceling an Order}
+\begin{algorithmic}[1]
+\Procedure{Cancel}{$i$}
+  \State $A[i] \gets \texttt{false}$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[H]
+\caption{Dispatching the Next Order}
+\begin{algorithmic}[1]
+\Procedure{DispatchNext}{}
+  \State $i \gets 1$
+  \While{$A[i] = \texttt{false}$}
+    \State $i \gets i + 1$
+  \EndWhile
+  \If{$i \le |A|$}
+    \State \Call{Cancel}{$i$}
+    \State \Return $i$
+  \Else
+    \State \Return $0$
+  \EndIf
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\bigskip
+
+\noindent Answer the following questions:
+
+\begin{enumerate}[(a)]
+  \item Analyze the running time of each operation:
+        \textsc{Init}, \textsc{Cancel}, and \textsc{DispatchNext}.
+  \item The procedure \textsc{DispatchNext} may repeatedly scan canceled orders.
+        Propose a minimal modification that guarantees
+        an amortized running time of $O(1)$ for \textsc{DispatchNext},
+        without increasing the asymptotic running time of
+        \textsc{Init} or \textsc{Cancel}.
+        Explicitly define and justify a potential function.
+  \item Design an alternative implementation of the delivery system
+        such that both \textsc{Cancel} and \textsc{DispatchNext}
+        run in worst-case time $O(1)$.
+        Briefly describe the data structures used.
+\end{enumerate}
+
+
+
+\textbf{Solution:}
+
+\textbf{(a) Running time analysis}
+
+\begin{itemize}
+    \item \textbf{Init($n$)}: The loop runs $n$ times, each assignment takes constant time. Therefore, the running time is $O(n)$.
+    \item \textbf{Cancel($i$)}: Direct assignment $A[i] \leftarrow \text{false}$, running time $O(1)$.
+    \item \textbf{DispatchNext()}: In the worst case, it scans the entire array from index 1 to $n$ to find the first $\text{true}$ entry. Thus, the running time is $O(n)$.
+\end{itemize}
+
+\textbf{(b) Modification for amortized $O(1)$ DispatchNext}
+
+We introduce a global variable $\text{next}$, initially set to 1. Modify the \textsc{DispatchNext} procedure to start scanning from $\text{next}$ instead of 1. After finding the first active order, update $\text{next}$ to that index plus 1. The \textsc{Cancel} and \textsc{Init} operations remain unchanged.
+
+The modified \textsc{DispatchNext} is:
+
+\begin{algorithm}[H]
+\caption{Modified DispatchNext}
+\begin{algorithmic}[1]
+\Procedure{DispatchNext}{}
+    \State $i \gets \text{next}$
+    \While{$i \leq n$ and $A[i] = \text{false}$}
+        \State $i \gets i + 1$
+    \EndWhile
+    \If{$i \leq n$}
+        \State $A[i] \gets \text{false}$
+        \State $\text{next} \gets i + 1$
+        \State \Return $i$
+    \Else
+        \State \Return 0
+    \EndIf
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
+
+\noindent \textbf{Potential function:} Let $\Phi$ be the number of indices $j$ such that $j \geq \text{next}$ and $A[j] = \text{false}$, i.e., the number of false entries from $\text{next}$ to the end of the array.
+
+\noindent \textbf{Amortized analysis:}
+\begin{itemize}
+    \item \textsc{Cancel($i$)}: 
+        \begin{itemize}
+            \item If $i < \text{next}$, actual cost $O(1)$, potential unchanged.
+            \item If $i \geq \text{next}$, actual cost $O(1)$, potential increases by 1.
+        \end{itemize}
+        Amortized cost $O(1)$.
+    \item \textsc{DispatchNext}: Suppose it scans $k$ false entries before finding a true entry. Actual cost $O(k+1)$. During the scan, these $k$ false entries are removed from the scope of the potential (since they become before the new $\text{next}$), so potential decreases by $k$. Amortized cost = $(k+1) - k = O(1)$.
+    \item \textsc{Init($n$)}: Actual cost $O(n)$, initial potential 0, amortized cost $O(n)$.
+\end{itemize}
+
+Thus, \textsc{DispatchNext} has amortized $O(1)$ time, without increasing the asymptotic running time of \textsc{Init} or \textsc{Cancel}.
+
+\textbf{(c) Alternative implementation with worst-case $O(1)$ Cancel and DispatchNext}
+
+\textbf{Data structures:}
+\begin{itemize}
+    \item Boolean array $\text{active}[1..n]$, indicating whether an order is active (same as $A$).
+    \item Doubly linked list of active orders in increasing order. Represented by arrays $\text{prev}[1..n]$ and $\text{next}[1..n]$, where $\text{prev}[i]$ and $\text{next}[i]$ store the predecessor and successor of order $i$ in the list, with $\text{NIL}$ for none. 
+    \item A head pointer $\text{head}$ pointing to the smallest active order.
+\end{itemize}
+
+\textbf{Operations:}
+
+\noindent \textbf{\textsc{Init($n$)}}
+\begin{itemize}
+    \item Set $\text{active}[i] = \text{true}$ for all $i = 1, \dots, n$.
+    \item Build the doubly linked list: for $i=1$ to $n$, set $\text{prev}[i] = i-1$ (with $\text{prev}[1] = \text{NIL}$) and $\text{next}[i] = i+1$ (with $\text{next}[n] = \text{NIL}$).
+    \item Set $\text{head} = 1$.
+\end{itemize}
+        Time: $O(n)$.
+
+\noindent \textbf{\textsc{Cancel($i$)}}
+\begin{itemize}
+            \item If $\text{active}[i]$ is false, return.
+            \item Otherwise, remove $i$ from the list: let $p = \text{prev}[i]$, $nx = \text{next}[i]$.
+            \item If $p \neq \text{NIL}$, set $\text{next}[p] = nx$; else (i.e., $i$ is the head), set $\text{head} = nx$.
+            \item If $nx \neq \text{NIL}$, set $\text{prev}[nx] = p$.
+            \item Set $\text{active}[i] = \text{false}$.
+        \end{itemize}
+        Time: $O(1)$.
+
+\noindent \textbf{\textsc{DispatchNext()}}
+\begin{itemize}
+            \item If $\text{head} = \text{NIL}$, return 0.
+            \item Otherwise, let $i = \text{head}$.
+            \item Update $\text{head} = \text{next}[i]$. If the new head is not $\text{NIL}$, set $\text{prev}[\text{head}] = \text{NIL}$.
+            \item Set $\text{active}[i] = \text{false}$.
+            \item Return $i$.
+        \end{itemize}
+        Time: $O(1)$.       
+
+
+This implementation achieves worst-case $O(1)$ time for \textsc{Cancel} and \textsc{DispatchNext}, and $O(n)$ for \textsc{Init}.
+
+\newpage

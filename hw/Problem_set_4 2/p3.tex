@@ -1,0 +1,21 @@
+\problem{}
+
+A deck contains $n$ distinct cards labeled $1,2,\dots,n$. The deck is thoroughly shuffled so that every one of the $n!$ permutations is equally likely, and the cards are then laid out in a row from left to right in positions $1$ through $n$. Let $I_{\max}$ denote the (random) position index of the card with the largest label (card $n$), and let $I_{\min}$ denote the (random) position index of the card with the smallest label (card $1$). Here, $\mathbb{E}[\cdot]$ denotes the \emph{expectation} of a random variable with respect to the randomness of the shuffle. Determine $\mathbb{E}[I_{\max}]$ and $\mathbb{E}[I_{\min}]$.
+
+
+
+\noindent \textbf{Solution:}
+
+Since the deck is shuffled uniformly at random, each of the \(n!\) permutations is equally likely. Consequently, each card is equally likely to occupy any position from 1 to \(n\). In particular, the card with the largest label (card \(n\)) and the card with the smallest label (card \(1\)) each have a uniform distribution over the positions \(\{1, 2, \dots, n\}\).
+
+Thus,
+\[
+\mathbb{E}[I_{\text{max}}] = \mathbb{E}[I_{\text{min}}] = \frac{1}{n} \sum_{i=1}^{n} i = \frac{1}{n} \cdot \frac{n(n+1)}{2} = \frac{n+1}{2}.
+\]
+
+Therefore,
+\[
+\mathbb{E}[I_{\text{max}}] = \frac{n+1}{2} \quad \text{and} \quad \mathbb{E}[I_{\text{min}}] = \frac{n+1}{2}.
+\]
+
+\newpage

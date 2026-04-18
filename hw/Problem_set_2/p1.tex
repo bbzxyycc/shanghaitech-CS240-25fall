@@ -1,0 +1,63 @@
+\problem{}
+
+\par In the intelligent text editing system m-Pad, the document consists of lowercase characters `\texttt{m}'.  
+\par Initially, the document contains only one `\texttt{m}'. The m-Pad system is extremely minimalistic and supports only two commands:
+\begin{itemize}
+    \item \textbf{Copy All}: Copies the entire content of the current document into the clipboard.  
+    (Partial copy is not allowed; the system always copies the full text.)
+    \item \textbf{Paste}: Appends the clipboard content to the end of the document.
+\end{itemize}
+\par Your task is to determine the minimum number of operations required to make the document contain exactly $n$ characters `\texttt{m}' by combining these two commands in an optimal way. Constraints: $1 \leq n \leq 1000$
+\par \textbf{Please solve this problem using Dynamic Programming.}
+
+\subsection*{Example 1}
+
+\textbf{Input:} \texttt{n = 1} \\
+\textbf{Output:} \texttt{0}
+
+\subsection*{Example 2}
+
+\textbf{Input:} \texttt{n = 9} \\
+\textbf{Output:} \texttt{6} \\
+\textbf{Explanation:}
+\begin{enumerate}
+    \item Copy All $\rightarrow$ clipboard: \texttt{m}
+    \item Paste $\rightarrow$ document: \texttt{mm}
+    \item Paste $\rightarrow$ document: \texttt{mmm}
+    \item Copy All $\rightarrow$ clipboard: \texttt{mmm}
+    \item Paste $\rightarrow$ document: \texttt{mmmmmm}
+    \item Paste $\rightarrow$ document: \texttt{mmmmmmmmm}
+\end{enumerate}
+\newpage
+\noindent \textbf{Solution}:
+
+\noindent \textbf{State Definition} 
+
+Define $OPT[i]$ as the minimum number of operations required to generate exactly $i$ characters `\texttt{m}'.
+
+\noindent \textbf{State Transition Equation}
+\begin{itemize}
+   \item Boundary conditions: When $i$ = 1, there is already one `\texttt{m}' initially, so $OPT[1]$ = 0.
+   \item Case 1: If we only use “Copy All” the first time and perform “Paste” operations for the rest, we need $1+(i - 1) = i + 1$ operations.Thus, initialize $OPT[i] = i$ .
+   \item Case 2: 
+   
+   If $i$ is divisible by some $j$ (i.e., $i = j \times k$ for $k \geq 2$), 
+   it means we can generate j `\texttt{m}'s first (which takes $OPT[j]$ operations).
+   
+   $\rightarrow$ Perform 1 "Copy All" operation to copy the $j$ `\texttt{m}'s to the clipboard. 
+   
+   $\rightarrow$ Perform $k - 1$ "Paste" operations (to append $j$ `\texttt{m}'s $k - 1$ times, resulting in $ j \times k = i  $ 'm's).
+
+   Thus, the total operations for this path is $OPT[j] + 1$ (Copy All) + $(k - 1)$ (Paste) = $OPT[j] + k$. Since $\frac{i}{j}$, this can also be written as $OPT[j] + \frac{i}{j}$.
+   Moreover, when multiple sets of factors exist for a given $i$, select the set with the minimum number of selections.
+\end{itemize}
+
+Thus, State transition equation is
+\begin{equation*}
+    OPT(i)=\left\{\begin{matrix}
+ 0&i=1\\
+ \min\{i,\min_{\substack{1 \leq j < i \\ i \% j = 0}}\{OPT(j)+\frac{i}{j}\}\}&i \geq 2
+\end{matrix}\right.
+\end{equation*}
+Thus, the minimum number of operations required to make the document contain exactly $n$ characters `\texttt{m}' by combining these two commands in an optimal way is $OPT(n)$.
+\newpage 

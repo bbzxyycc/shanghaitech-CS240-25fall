@@ -1,0 +1,61 @@
+\problem{}
+Xiaoxiong encounters $n$ monsters sequentially, numbered from $1$ to $n$. Monster $i$ has health $a_i$ and requires $p_i$ stamina to defeat. Xiaoxiong starts with an initial stamina of $P$.
+
+For each monster, Xiaoxiong has two choices:
+
+\begin{enumerate}
+    \item \textbf{Let the monster go} -- gain $i$ experience points, and \textbf{no stamina is consumed}.
+    \item \textbf{Defeat the monster} -- consumes $p_i$ stamina, and gains
+    \[
+        \text{experience} = a_i + (x \bmod 10) \cdot a_i
+    \]
+    where $x$ is the total number of monsters defeated so far (including the current monster).
+\end{enumerate}
+
+\textbf{Note:} If Xiaoxiong's remaining stamina is less than $p_i$, she \textbf{cannot defeat the monster} and can only let it go.
+
+\textbf{Goal:} Determine the maximum total experience Xiaoxiong can earn.
+
+\newpage
+\noindent \textbf{Solution}:
+
+\noindent \textbf{State Definition} Define $OPT(i,p,k)$ as 
+the maximum experience gained when the remaining stamina is $p$ after dealing with the first $i$ monsters, and the number of defeated monsters modulo 10 is $k$.
+
+Here, $i \in [0,n],p \in [0,P], k \in [0,9]$
+
+\noindent \textbf{State Transition Equation}
+\begin{itemize}
+   \item Boundary conditions: Initially encountered no monsters. 
+   Defeated monsters modulo 10 = 0. Experience is 0. $OPT(0,p,k)=0$. Other states are unreachable.$OPT(0,p,k)=-\infty,i=0$ but $k \neq 0$
+   \item Case 1: 
+   
+   When defeating monster $i$ requires stamina $p_i$ exceeding Xiaoxiong's remaining stamina ($p_i > p$), monster i must be let go, and $OPT(i, p,k) = OPT(i-1, p,k) + i$.   
+   \item Case 2: 
+   
+    Defeating monster $i$ requires stamina $p_i \leq$  Xiaoxiong's remaining stamina. You may choose whether to let monster $i$ go:     
+    \begin{itemize}
+        \item let monster i go: $OPT(i, p,k) = OPT(i-1, p,k) + i$
+        \item defeat the monster: Xiaoxiong can get
+        $ a_i + a_i * k$ experience,
+        
+        $OPT(i, p,k) =OPT(i-1,p-p_i,(k-1) \mod 10)+ a_i + a_i * k$
+    \end{itemize}
+\end{itemize}
+
+Thus, State transition equation is
+\newline
+
+\noindent $OPT(i,p,k)=$
+\begin{equation*}
+    \left\{\begin{matrix}
+ 0&i=0 ,k = 0\\
+ -\infty&i=0  \text{ but } k \neq 0\\
+ OPT(i-1, p,k) + i& p_i>p\\
+ \max\{OPT(i-1, p,k) + i,OPT(i-1,p-p_i,(k-1) \mod 10)+ a_i + a_i * k \}&p_i\leq p
+\end{matrix}\right.
+\end{equation*}
+Thus, the maximum total experience Xiaoxiong can earn is $\max_{k \in [0,9]} OPT(n,P,k)$.
+ 
+
+\newpage

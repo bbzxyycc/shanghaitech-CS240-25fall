@@ -1,0 +1,85 @@
+\problem{}
+
+Given positive integers $x_1, x_2, \ldots, x_n$ and numbers $k$ and $B$, determine whether it is possible to partition the numbers $\{x_i\}$ into $k$ subsets $S_1, S_2, \ldots, S_k$ such that
+\[
+\sum_{i=1}^{k} \left( \sum_{x_j \in S_i} x_j \right)^{2} \le B .
+\]
+\\
+Prove that this problem is NP-complete. \\
+In this problem, you can use a reduction from the NP-complete problem 
+\textsc{Partition}, defined as follows:
+
+[\textsc{Partition}]
+Given positive integers \( a_1, a_2, \dots, a_m \), can they be partitioned into two subsets with equal sum?
+
+
+\noindent \textbf{Proof:}
+The problem \(A\) is NP-complete.
+
+\noindent\textbf{Step 1: \(A \in \mathrm{NP}\).} \\
+A certificate is an explicit partition of the indices \(\{1,\dots,n\}\) into \(k\) labelled subsets \(S_1,\dots,S_k\). A polynomial-time verifier computes each subset sum
+\[
+s_i=\sum_{x_j\in S_i} x_j \quad (i=1,\dots,k),
+\]
+then computes \(\sum_{i=1}^k s_i^2\) and checks whether this quantity is \(\le B\). All operations are integer additions and squarings over at most \(n\) integers, hence run in time polynomial in the input size. Therefore \(A\in\mathrm{NP}\).
+
+\noindent\textbf{Step 2: Reduction from \textsc{Partition} to \(A\).} \\
+Given an instance of \textsc{Partition} with numbers \(a_1,\dots,a_m\) and total sum \(T=\sum_{i=1}^m a_i\), we construct an instance of \(A\) as follows:
+\begin{itemize}
+  \item Let \(n=m\) and set \(x_i:=a_i\) for \(i=1,\dots,m\).
+  \item Set \(k:=2\).
+  \item Set
+  \[
+  B := \big\lfloor \tfrac{T^2}{2}\big\rfloor .
+  \]
+\end{itemize}
+The construction is performed by copying the input numbers and computing \(T\) and \(B\) via polynomial-time arithmetic, so it is a polynomial-time reduction.
+
+\noindent\textbf{Step 3: Correctness (equivalence).} \\
+Let the constructed instance of \(A\) be denoted \(a\) and the original \textsc{Partition} instance be denoted \(b\). We show that \(b\) is a yes-instance of \textsc{Partition} if and only if \(a\) is a yes-instance of \(A\).
+
+\smallskip
+
+\noindent\(\Rightarrow\): Suppose \(b\) is a yes-instance. Then there exists a partition of \(\{a_1,\dots,a_m\}\) into two subsets whose sums are equal, i.e. there exist disjoint \(S_1,S_2\) with \(S_1\cup S_2=\{1,\dots,m\}\) and
+\[
+\sum_{i\in S_1} a_i = \sum_{i\in S_2} a_i = \frac{T}{2}.
+\]
+For the corresponding \(A\)-instance we have
+\[
+\left(\sum_{i\in S_1} x_i\right)^2 + \left(\sum_{i\in S_2} x_i\right)^2
+= \left(\frac{T}{2}\right)^2 + \left(\frac{T}{2}\right)^2
+= \frac{T^2}{2}.
+\]
+Since \(B=\big\lfloor \tfrac{T^2}{2}\big\rfloor \ge \tfrac{T^2}{2}-\tfrac{1}{2}\) and the left-hand side is exactly \(\tfrac{T^2}{2}\), we certainly have
+\[
+\left(\sum_{i\in S_1} x_i\right)^2 + \left(\sum_{i\in S_2} x_i\right)^2 \le B,
+\]
+so \(a\) is a yes-instance of \(A\).
+
+\smallskip
+
+\noindent\(\Leftarrow\): Conversely, suppose \(a\) is a yes-instance of \(A\). Then there exists a partition of the multiset \(\{x_1,\dots,x_n\}\) into two subsets with subset sums \(s_1,s_2\) (so \(s_1+s_2=T\)) such that
+\[
+s_1^2 + s_2^2 \le B = \big\lfloor \tfrac{T^2}{2}\big\rfloor .
+\]
+We use the elementary inequality for real numbers with fixed sum: for any real \(s_1,s_2\) with \(s_1+s_2=T\),
+\[
+s_1^2+s_2^2 = 2\left(\frac{s_1+s_2}{2}\right)^2 + 2\left(\frac{s_1-s_2}{2}\right)^2
+= \frac{T^2}{2} + 2\left(\frac{s_1-s_2}{2}\right)^2
+\ge \frac{T^2}{2},
+\]
+with equality iff \(s_1=s_2=\tfrac{T}{2}\).
+
+Because \(s_1^2+s_2^2\) and \(B\) are integers, and \(B=\lfloor T^2/2\rfloor\), the inequality
+\[
+s_1^2+s_2^2 \le \big\lfloor \tfrac{T^2}{2}\big\rfloor
+\]
+forces \(s_1^2+s_2^2\) to equal the integer nearest below or equal to \(T^2/2\). Combining this with the bound \(s_1^2+s_2^2 \ge T^2/2\) shows that equality must occur, i.e.
+\[
+s_1^2+s_2^2 = \frac{T^2}{2}.
+\]
+Therefore \(s_1=s_2=\frac{T}{2}\). In particular, \(T\) must be even and the partition \((S_1,S_2)\) is a valid partition for the original \textsc{Partition} instance \(b\). Hence \(b\) is a yes-instance.
+
+Combining both directions, we have \(b\) is yes \(\iff\) \(a\) is yes. Together with Step 1 and the fact that the reduction is polynomial-time, this proves that \(A\) is NP-hard and belongs to NP; therefore \(A\) is NP-complete.
+
+\newpage

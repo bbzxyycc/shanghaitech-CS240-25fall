@@ -1,0 +1,117 @@
+\problem{}
+\textbf{Given:}
+\begin{itemize}
+    \item An automated sorting system for a smart warehouse called the \emph{Dynamic Inverter Tube}, which operates as a stack-like vertical tube.
+    \item \textbf{Insertion:} Packages are loaded one by one into the tube. Each insertion has a base cost of $1$.
+    \item \textbf{Inversion Trigger:} Whenever the total number of packages in the tube reaches a power of $2$ (i.e., $n = 2^i$ for some integer $i \ge 0$), the tube automatically rotates $180^\circ$, reversing the order of all packages inside.
+    \item \textbf{Inversion Cost:} The mechanical cost to rotate (invert) the tube equals the number of packages currently inside. That is, if there are $k$ packages in the tube, the inversion costs $k$.
+\end{itemize}
+
+\noindent \textbf{Example:}
+If Yansen loads packages labeled $1,2,3,4$ in sequence, the state of the tube (from bottom to top) evolves as follows:
+\begin{itemize}
+    \item Push $1$: tube has $1$ item ($2^0$). Invert! $\Rightarrow (1)$
+    \item Push $2$: tube adds $2$, then has $2$ items ($2^1$). Invert! $\Rightarrow (2,1)$
+    \item Push $3$: tube adds $3$, then has $3$ items. No inversion. $\Rightarrow (2,1,3)$
+    \item Push $4$: tube adds $4$, then has $4$ items ($2^2$). Invert! $\Rightarrow (4,3,1,2)$
+\end{itemize}
+
+\noindent \textbf{Task:}
+Calculate the amortized cost per insertion using each of the following methods:
+\begin{enumerate}
+    \item Aggregate Analysis,
+    \item The Accounting Method,
+    \item The Potential Method.
+\end{enumerate}
+
+\textbf{Solution:}
+
+
+\textbf{1. Aggregate Analysis}
+
+Consider performing \(n\) insertions. The total cost consists of:
+\begin{itemize}
+    \item Base insertion cost: \(n\).
+    \item Inversion cost: Inversions occur when the number of packages becomes a power of 2, i.e., after insertions 1, 2, 4, 8, \dots. Let \(k = \lfloor \log_2 n \rfloor\). The inversion costs are \(1, 2, 4, \dots, 2^k\).
+\end{itemize}
+Total inversion cost:
+\[
+R(n) = \sum_{i=0}^{k} 2^i = 2^{k+1} - 1 \leq 2n - 1.
+\]
+Total cost:
+\[
+T(n) = n + R(n) \leq n + 2n - 1 = 3n - 1.
+\]
+Amortized cost per insertion:
+\[
+\frac{T(n)}{n} \leq \frac{3n-1}{n} = 3 - \frac{1}{n} \to 3.
+\]
+Thus, the amortized cost per insertion is \(O(1)\) and at most 3.
+
+
+\noindent \textbf{2. The Accounting Method}
+
+We charge 3 units for each insertion. One unit pays for the base insertion cost, and the remaining 2 units are deposited as credit to be used for future inversions.
+
+We claim that the credit balance never becomes negative. Let \(B(j)\) be the balance after the \(j\)-th insertion. Initially, \(B(0) = 0\). For the \(j\)-th insertion:
+\begin{itemize}
+    \item We charge 3, so balance increases by 3.
+    \item We pay 1 for the insertion.
+    \item If \(j\) is a power of 2, we also pay \(j\) for the inversion.
+\end{itemize}
+Thus:
+\[
+B(j) = B(j-1) + 2 \quad \text{if } j \text{ is not a power of 2},
+\]
+\[
+B(j) = B(j-1) + 2 - j \quad \text{if } j \text{ is a power of 2}.
+\]
+
+We prove by induction that \(B(j) \geq 0\) for all \(j\). 
+Base case: \(j=1\), \(B(1)=0+3-1-1=1 \geq 0\).
+Inductive step: Assume \(B(j-1) \geq 0\).
+\begin{itemize}
+    \item If \(j\) is not a power of 2, \(B(j) = B(j-1)+2 \geq 2 > 0\).
+    \item If \(j\) is a power of 2, we need to show \(B(j-1) \geq j-2\). In fact, one can verify that after each power-of-2 insertion, the balance becomes 1. More precisely, let \(j = 2^i\). Then one can show that \(B(2^i) = 1\) for all \(i \geq 0\). This holds because:
+        \[
+        B(2^i) = B(2^{i-1}) + 2 \cdot (2^i - 2^{i-1} - 1) + 2 - 2^i = B(2^{i-1}).
+        \]
+        Since \(B(1)=1\), it follows that \(B(2^i)=1\). Thus, before the inversion at \(j=2^i\), the balance is \(B(j-1) = 1 + 2(j-1 - 2^{i-1}) \geq 1\), and after paying \(j\), we have \(B(j) = B(j-1) + 2 - j = 1\). Therefore, the balance never becomes negative.
+\end{itemize}
+Hence, charging 3 per insertion suffices, and the amortized cost is 3.
+
+\noindent  \textbf{3. The Potential Method}
+
+Define the potential function \(\Phi\) as twice the difference between the current number of packages \(s\) and the largest power of 2 not exceeding \(s\). Let \(m = 2^{\lfloor \log_2 s \rfloor}\) and \(r = s - m\), then \(\Phi = 2r\). Clearly, \(\Phi \geq 0\), and initially \(s=0\), \(\Phi=0\).
+
+Consider an insertion. Let \(s\) be the number of packages before insertion. After insertion, there are \(s+1\) packages. The actual cost: 1 for insertion, plus an inversion cost of \(s+1\) if \(s+1\) is a power of 2.
+
+Two cases:
+\begin{enumerate}
+    \item \textbf{Case 1:} \(s+1\) is not a power of 2.
+    
+    Actual cost = 1.
+    
+    Before insertion: \(s = m + r\), \(0 \leq r < m\). After insertion: \(s+1 = m + (r+1)\), with \(r+1 < m\) (since not a power of 2). So \(\Phi_{\text{before}} = 2r\), \(\Phi_{\text{after}} = 2(r+1)\).
+    
+    \(\Delta\Phi = 2(r+1) - 2r = 2\).
+    
+    Amortized cost = actual cost + \(\Delta\Phi = 1 + 2 = 3\).
+
+    \item \textbf{Case 2:} \(s+1\) is a power of 2.
+    
+    Let \(s+1 = 2m\). Then before insertion, \(s = 2m-1 = m + (m-1)\), so \(r = m-1\). After insertion, \(s+1 = 2m\), so the new \(r' = 0\).
+    
+    Actual cost = 1 + (s+1) = 1 + 2m.
+    
+    \(\Phi_{\text{before}} = 2(m-1) = 2m-2\), \(\Phi_{\text{after}} = 0\).
+    
+    \(\Delta\Phi = 0 - (2m-2) = -2m+2\).
+    
+    Amortized cost = (1+2m) + (-2m+2) = 3.
+\end{enumerate}
+
+In both cases, the amortized cost is 3. Therefore, the amortized cost per insertion is 3.
+
+
+\newpage

@@ -1,0 +1,89 @@
+\problem{}
+% You are provided with three sequences $A$, $B$, and $C$. The lengths of these sequences are $m$, $n$, and $m+n$, respectively. In other words, sequence $C$ has a length that equals the combined lengths of sequences $A$ and $B$. Develop an algorithm to determine if the sequences $A$ and $B$ can be interleaved to form sequence $C$, while maintaining the relative order of characters in $A$ and $B$.
+
+% \textbf{Example 1:} Given $A = aabb$, $B = cba$, and $C = acabbab$, the algorithm should return \textbf{true}.
+
+% \textbf{Example 2:} Given $A = aabb$, $B = cba$, and $C = aaabbbc$, the algorithm should return \textbf{false}.
+
+Determine the time complexity of the pseudocode below and explain your reasoning.
+
+\begin{lstlisting}
+def count_triples(arr, threshold):
+    n = len(arr)
+    count = 0
+    
+    def quicksort(arr, left, right):
+        if left >= right:
+            return
+        pivot = arr[right]
+        i = left
+        for j in range(left, right):
+            if arr[j] <= pivot:
+                arr[i], arr[j] = arr[j], arr[i]
+                i += 1
+        arr[i], arr[right] = arr[right], arr[i]
+        quicksort(arr, left, i - 1)
+        quicksort(arr, i + 1, right)
+    quicksort(arr, 0, n - 1)
+    
+    def upper_bound(arr, left, right, target):
+        result = left - 1
+        while left <= right:
+            mid = (left + right) // 2
+            if arr[mid] <= target:
+                result = mid
+                left = mid + 1
+            else:
+                right = mid - 1
+        return result
+
+    for i in range(n):
+        for j in range(i + 1, n):
+            target = threshold - (arr[i] + arr[j])
+            k = upper_bound(arr, j + 1, n - 1, target)
+            if k > j:
+                count += (k - j)
+
+    return count
+\end{lstlisting}
+
+\noindent \textbf{Solution:} \\
+
+\noindent The pseudocode structure can be divided into two parts:
+\[
+\left\{
+\begin{array}{l}
+\text{using quicksort on an array of length $n$}  \\
+\text{using a double loop that calls \texttt{upper\_bound} inside to calculate k. 
+}
+\end{array}
+\right .
+\]
+
+
+\noindent Thus, the time complexity of the pseudocode =
+
+complexity of quicksort + complexity of calculating k.
+\\ 
+
+\noindent For quicksort:
+
+The average-case complexity is $O(n\log n)$, 
+where the recursion depth is $O(\log n)$ and the overhead of partition traversal is $O(n)$.
+
+The worst-case complexity is $O(n^2)$, 
+in which case the recursion depth is $O(n)$ while the overhead of partition traversal remains $O(n)$.
+\\
+
+\noindent For k:
+
+The outer loop is executes n times, the inner loop runs $n-i$ times, and the loop body (calling \texttt{upper\_bound}) has complexity $O(\log n)$.
+
+$ \sum_{i=  1}^{n}\sum_{j=  i+1}^{n}\log_2 n=  \frac{1}{2}n^2 \log_2 n- \frac{1}{2}n \log_2 n$, which is $O(n^2 \log n)$.
+\\
+
+\noindent Whether in the worst case or average case, the double loop dominates the overall complexity, and the quicksort term can be omitted.
+\\
+
+\noindent Thus, the time complexity of the overall pseudocode is $O(n^2 \log n)$.
+\newpage

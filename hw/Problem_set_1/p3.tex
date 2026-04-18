@@ -1,0 +1,41 @@
+\problem{}
+
+At ShanghaiTech University, there is a group of students, and the energy value of each student is represented by a positive integer in the array \(\text{nums}\).
+
+To accomplish a large team project, at least three students must work together.  
+However, not every combination of students can successfully complete the project:
+
+If you choose \(k\) students (\(k \geq 3\)), and arrange their energy values in non-decreasing order as
+\[
+a_1 \leq a_2 \leq \cdots \leq a_k,
+\]
+then the following condition must hold:
+\[
+a_1 + a_2 + \cdots + a_{k-1} > a_k.
+\]
+
+In other words, the most capable student’s energy value cannot exceed the total energy values of all the other students.  
+
+If a team satisfies this condition, then they can successfully complete the project.  
+In this case, the team’s \textit{total combat power} is defined as the sum of all members’ energy values:
+\[
+\text{Total Combat Power} = a_1 + a_2 + \cdots + a_k.
+\]
+
+Return the maximum \textit{total combat power} of a team that can be formed from \(\text{nums}\).
+
+\noindent \textbf{Solution}:
+
+What we need to do is search for an index k from the end of a sorted array of energies, where k satisfies that the sum of the first k-1 elements is less than the kth element. Then return the sum of the first k elements.
+
+\noindent \textbf{Step1}. Sort the energe array in ascending order of nums.
+
+\noindent \textbf{Step2}. 
+Create the sum\_energe array such that its i-th element is the sum of the first i elements of the energe array.
+
+\noindent \textbf{Step3}. Starting from the last element n, compare energe[k] with sum\_energe[k-1]. If sum\_energe[k-1] > energe[k] is found, return energe[1:k].
+
+
+\noindent \textbf{Step4}. If sum\_energy[k-1] $\leq$ energy[k], then set k = k-1 and repeat step 3.
+
+\newpage

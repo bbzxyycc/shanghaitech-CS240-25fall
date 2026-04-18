@@ -1,0 +1,40 @@
+% \problem{}
+% Consider an $m*n$ matrix where each entry is a positive integer. The task is to choose a subset of the matrix’s elements such that no two selected elements are adjacent. In this context, an element at position $(i,j)$ is adjacent to the elements at $(i,j \pm 1)$ and $(i\pm 1,j)$, while it is not adjacent to the elements at $(i \pm 1,j\pm 1)$. Develop an efficient algorithm to maximize the total sum of the selected elements. Using the method of \textbf{network flow}, \textbf{design an efficient algorithm} to maximize the total sum of the selected elements and \textbf{prove its correctness}.
+\problem{}
+    ShanghaiTech University Library is hosting a reading-sharing event. 
+    Each book on the shelf has a \textit{difficulty index}, and students want to select books that best match their reading ability.
+    \vspace{1\baselineskip}
+
+    \noindent\textbf{Given:}
+    \begin{itemize}
+        \item $n$: the number of books on the shelf
+        \item $d = [d_1, d_2, \dots, d_n]$: the difficulty indices of the books in shelf order
+        \item $a$: the student's reading ability
+        \item $m$: the number of books the student must select
+    \end{itemize}
+
+    \noindent\textbf{Goal:}  
+    Select $m$ books such that:
+    \begin{enumerate}
+        \item Each selected book’s difficulty is as close as possible to $a$.
+        \item The selection preserves the original shelf order.
+        \item If multiple books are equally close, choose the ones that appear earlier.
+        \item Need to be done with \textbf{Divide and Conquer}.
+    \end{enumerate}
+
+\noindent \textbf{Solution}:
+
+\noindent \textbf{Step1}.
+Create an array $t = [t_1, t_2, \dots, t_n]$, which $t_i$ represents $d_i$ - a
+
+\noindent \textbf{Step2}.
+For each $t_i$ from t, take its absolute value to obtain the gap between the difficulty index of books in the shelf order and the student's ability.
+
+\noindent \textbf{Divide step}.
+Find the middle element of the array, dividing it into left and right halves. Recursively perform merge sort on each half, repeating the division process until the subarrays contain only one element.
+
+\noindent \textbf{Combine step}.
+Merge two ordered subarrays into a final sorted result array. By comparing the first elements of each subarray, add the smaller element to the result array and shift the corresponding pointer. Repeat this process until one subarray is empty, then directly append the remaining elements of the other non-empty subarray to the result array.
+The first k elements of the result array are the ones to be selected.
+
+\newpage

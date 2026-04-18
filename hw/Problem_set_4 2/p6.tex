@@ -1,0 +1,74 @@
+\problem{}
+In class, we discussed a 2-approximation algorithm for the scheduling problem on identical machines. We now consider a more complex scenario where machines have different processing efficiencies. 
+
+Suppose a system consists of $m$ slow machines and $k$ fast machines. A fast machine performs work twice as efficiently as a slow machine. A sequence of $n$ jobs is provided by an upstream pipeline; you must assign each job to a machine as it arrives, without prior knowledge of the processing times of future jobs. 
+
+For each job $i$, the processing time is $t_i$ if assigned to a slow machine, and $\frac{1}{2}t_i$ if assigned to a fast machine. The goal is to minimize the \textbf{makespan}, defined as the maximum total processing time across all machines.
+
+\textbf{Task:} Provide a polynomial-time algorithm that assigns jobs to machines such that the resulting makespan is at most 3 times the optimal makespan (a 3-approximation algorithm).
+
+\noindent \textbf{Solution:}
+
+
+\textbf{Algorithm Description}
+We maintain the current completion time for each machine (initially 0). For each arriving job $i$, we compute the new completion time if it were assigned to machine $j$:
+\begin{itemize}
+    \item If $j$ is a slow machine, new completion time = current completion time + $t_i$.
+    \item If $j$ is a fast machine, new completion time = current completion time + $\frac{1}{2} t_i$.
+\end{itemize}
+Assign job $i$ to the machine that yields the smallest new completion time (break ties arbitrarily), and update that machine's completion time.
+
+\textbf{Approximation Ratio Proof}
+Let $C$ be the makespan produced by the algorithm, and $C^*$ be the optimal makespan. Consider the machine that finishes last at time $C$, and let job $n$ be the last job on that machine. Denote the type of that machine by $T$ (slow or fast), and let $p_n$ be the processing time of job $n$ on that machine:
+\[
+p_n = \begin{cases}
+t_n, & \text{if the machine is slow},\\
+\frac{1}{2}t_n, & \text{if the machine is fast}.
+\end{cases}
+\]
+Before assigning job $n$, the completion time of that machine was $C - p_n$. Since the algorithm chose this machine, at the time of assignment, the completion time of every other machine was at least $C - p_n$. Therefore, the total work (measured in slow‑machine time) processed before assigning job $n$ is at least
+\[
+m \cdot (C - p_n) + k \cdot 2(C - p_n) = (m+2k)(C - p_n),
+\]
+because a slow machine with completion time $L$ has processed work $L$, and a fast machine with completion time $L$ has processed work $2L$ (since it is twice as fast). Adding the work $t_n$ of job $n$, the total work $W$ satisfies
+\[
+W \ge (m+2k)(C - p_n) + t_n.
+\]
+
+On the other hand, in an optimal schedule, each slow machine can process at most $C^*$ work, and each fast machine can process at most $2C^*$ work, so
+\[
+W \le m C^* + 2k C^* = (m+2k)C^*.
+\]
+Combining the two inequalities gives
+\[
+(m+2k)(C - p_n) + t_n \le (m+2k)C^*,
+\]
+which implies
+\[
+C \le C^* + p_n - \frac{t_n}{m+2k}.
+\]
+
+Now we consider two cases.
+
+\textbf{Case 1: Job $n$ is assigned to a slow machine.} Then $p_n = t_n$, and
+\[
+C \le C^* + t_n\left(1 - \frac{1}{m+2k}\right) \le C^* + t_n.
+\]
+Since in an optimal schedule job $n$ could be processed on a fast machine, we have $C^* \ge \frac{1}{2}t_n$, i.e., $t_n \le 2C^*$. Hence,
+\[
+C \le C^* + 2C^* = 3C^*.
+\]
+
+\textbf{Case 2: Job $n$ is assigned to a fast machine.} Then $p_n = \frac{1}{2}t_n$, and
+\[
+C \le C^* + \frac{t_n}{2} - \frac{t_n}{m+2k} = C^* + t_n\left(\frac{1}{2} - \frac{1}{m+2k}\right).
+\]
+Because $m+2k \ge 2$ (there is at least one fast machine), we have $\frac{1}{2} - \frac{1}{m+2k} \le \frac{1}{2}$. Moreover, $C^* \ge \frac{1}{2}t_n$ (job $n$ could be processed on a fast machine), so $t_n \le 2C^*$. Thus,
+\[
+C \le C^* + \frac{t_n}{2} \le C^* + C^* = 2C^*.
+\]
+
+In both cases, $C \le 3C^*$. Therefore, the algorithm is a 3‑approximation.
+
+
+\newpage

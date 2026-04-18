@@ -1,0 +1,148 @@
+\problem{}
+Whispers tell of an ancient city gate protected by two formidable rows of runic stones.
+There are $n$ stones in each row, $2n$ stones in total, each inscribed with a unique number from $1$ to $2n$.  
+The current arrangement of stones is called the \textit{initial state}, while the inscription from the old manuscripts describes the \textit{target state}.  
+Only when the stones are rearranged into the target state can the sealed gate be opened.  
+
+\noindent Yansen can change the position of the stones through this operation:  
+
+\textit{``Select any adjacent $2 \times 2$ block of stones and cast the ancient spell; the selected block will rotate as a whole by $180^\circ$."}
+
+Since casting a spell consumes energy, Yansen needs to cast as few spells as possible to open the gate.
+
+\vspace{1\baselineskip}
+
+\noindent Here is an example with $n=3$:
+
+\[
+\text{Initial State: }\quad 
+\begin{array}{ccc}
+3 & 2 & 1 \\
+4 & 5 & 6
+\end{array}
+\qquad
+\text{Target State: }\quad
+\begin{array}{ccc}
+5 & 6 & 3 \\
+2 & 1 & 4
+\end{array}
+\]
+
+\noindent\textbf{Operation 1:} Rotate the left $2\times2$ block by $180^\circ$.
+\[
+\begin{array}{ccc}
+\textbf{3} & \textbf{2} & 1\\
+\textbf{4} & \textbf{5} & 6
+\end{array}
+\;\xRightarrow{\;\text{rotate}\;}
+\begin{array}{ccc}
+\textbf{5} & \textbf{4} & 1\\
+\textbf{2} & \textbf{3} & 6
+\end{array}
+\]
+
+\noindent\textbf{Operation 2:} Rotate the right $2\times2$ block by $180^\circ$.
+\[
+\begin{array}{ccc}
+5 & \textbf{4} & \textbf{1}\\
+2 & \textbf{3} & \textbf{6}
+\end{array}
+\;\xRightarrow{\;\text{rotate}\;}
+\begin{array}{ccc}
+5 & \textbf{6} & \textbf{3}\\
+2 & \textbf{1} & \textbf{4}
+\end{array}
+\]
+
+\noindent The minimum number of operations required is 2.
+
+\vspace{1\baselineskip}
+
+\noindent Here is another example with $n=2$:
+
+\[
+\text{Initial State: }\quad 
+\begin{array}{ccc}
+1 & 2 \\
+3 & 4
+\end{array}
+\qquad
+\text{Target State: }\quad
+\begin{array}{ccc}
+3 & 4 \\
+2 & 1
+\end{array}
+\]
+
+\noindent In this case, the initial state cannot be transformed into the target state.
+
+\newpage
+
+\noindent Adventurer Yansen wishes to know:  
+\begin{enumerate}
+  \item Under what conditions can the initial state be transformed into the target state through a sequence of such operations?
+  \item If it can be transformed, what is the minimum number of operations required?
+\end{enumerate}
+
+\noindent \textbf{Constraint}: Your algorithm must run in time complexity no worse than $O(n \log n)$.
+
+\noindent \textbf{Solution for question 1}:
+
+An element's initial state is located at row $i$, column $j$, 
+while its target state is at row $i'$, column $j'$. 
+If for every element in the matrix, the sum of its row and column indices $(i+j)$ matches the sum of the target element's row 
+and column indices $(i'+j')$, then the matrix can be transformed. 
+This is because each rotation operation simultaneously increases or decreases either the row coordinate or the column coordinate by the same amount. 
+
+\noindent \textbf{Solution for question 2}:
+Since the initial state can be transformed into the target state, 
+the indices and parity of all elements in the two-dimensional array remain unchanged.
+We only need to examine the sequences where the sum of indices is odd (or even).
+
+Taking the even sequence as an example, it forms a wave pattern.
+ All elements in the even sequence have distinct column coordinates.
+  Define the initial state column coordinates as a fully ordered sequence \{1, 2, ..., n\}.
+ Each rotation operation only affects two adjacent columns, resulting in only one inversion.
+ Therefore, we only need to examine the number of inversions in the target state's column coordinate arrangement.
+
+ For the example n=3 in the problem,
+ the elements with even sum of indices are \{3,5,1\},
+ whose column coordinates are \{1,2,3\}.
+ After one rotate operation, 3 and 5 swap positions,
+  changing the column coordinate arrangement to \{2,1,3\}.
+ After another rotate operation, 3 and 1 swap,
+  reaching the target state \{2,3,1\}.
+
+The problem transforms into finding the reverse order
+ number of the column coordinates for elements with an even 
+ sum of indices in the target state. We can apply a divide-and-conquer 
+ approach to solve this, controlling the time complexity within $O(n \log n)$.
+
+\noindent \textbf{Algorithm}.
+
+For sequences where the sum of indices is even, we will collectively refer to them as even sequences.
+Extract the elements of the initial even sequence, whose column coordinates are ordered as \{1, 2, ..., n\}.
+Then, use a dictionary denoted as D, where the value of the element with initial column coordinate $i$ serves 
+as the key, and $i$ itself as the value.
+
+For each element k in the target even sequence, 
+sequentially look up D[k] to form a new column coordinate 
+sequence array denoted as Target[]. Subsequently, compute the 
+reverse order of Target[].
+
+\textbf{Divide Step}.
+Recursively split the array Target[] into two halves until each subarray contains only one element. At this point, each subarray is naturally sorted and contains no inverted pairs.
+
+
+\textbf{Combine Step}.
+
+Initialize the reverse pair counter to 0. Simultaneously, take elements from the starting positions of both subarrays for comparison. If the element in the left subarray is greater than the element in the right subarray, then all pairs formed between elements following this point in the left subarray and the current element in the right subarray are reverse pairs.
+Add the number of remaining elements in the right subarray to the reverse pair counter and advance the pointer for the right subarray by one position. If the element in the left subarray is less than or equal to the element in the right subarray, directly add the element from the left subarray to the result array and advance the pointer for the left subarray by one position.
+Repeat the comparison process until all elements from one subarray have been added to the result array. Add all remaining elements from the other subarray directly to the result array; these elements will not generate additional inversions. Return the value of the inversion counter, which represents the total number of inversions in the merged array.
+
+\textbf{Time complexity}.
+
+The complexity of constructing a one-dimensional array Target[] is O(n).
+The time complexity of combine step is O(n) for sequence length of n, and each subproblem of division requires $T(\frac{n}{2})$.
+The recurrence relation is: $T(n)= T(\frac{n}{2}) + O(n)$.Thus the overall time complexity is $O(n \log n)$.
+\newpage
